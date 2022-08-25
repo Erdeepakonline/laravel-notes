@@ -18,3 +18,10 @@ How To clear cache in laravel : php artisan cache:clear
 How To check table migrate status : php artisan migrate:status
 
 
+Add Code To File Before table migrate : app/Providers/AppServiceProvider.php  
+public function boot()
+    {
+        Schema::defaultStringLength (191);
+    }
+   
+then migrate table
