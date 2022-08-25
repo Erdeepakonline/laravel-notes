@@ -1,0 +1,20 @@
+How To install Laravel in Your System : composer global require laravel/laravel installer
+
+How To Craete Project in Laravel : composer create-project laravel/laravel app_name
+
+How To Run Laravel Project Command : php artisan serve 
+
+How to crate Controller in Laravell : php artisan make:controller controller_name -resource 
+
+How To Create Model in Laravel : php artisan make:model model_name -m  (iske sath aapki table bhi create ho jayegi).
+
+
+How To create table in laravel : php artisan make:migration create_table_name
+
+How To Migrate table in Laravell : php artisan migrate 
+
+How To clear cache in laravel : php artisan cache:clear
+
+How To check table migrate status : php artisan migrate:status
+
+
