@@ -1,0 +1,317 @@
+Make Controller : StudentController 
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Student;
+use Illuminate\Http\Request;
+
+class StudentController extends Controller
+{
+    // Display Record
+    public function index()
+    {
+        $students=Student::all();
+        return view('student',['students'=>$students,'layout'=>'index']);
+    }
+
+    // Show Form
+    public function create()
+    {
+        return view('student',['layout'=>'create']);
+    }
+
+//    Save Record
+    public function store(Request $request)
+    {
+        $student = new Student();
+        $student->cne=$request->input('cne'); 
+        $student->firstname=$request->input('firstname'); 
+        $student->lastname=$request->input('lastname'); 
+        $student->age=$request->input('age'); 
+        $student->speciality=$request->input('speciality'); 
+        $student->save();
+        return redirect('/')->with('addmsg','Record Saved Successfully..');
+
+    }
+
+//    Show Record Id based
+    public function show($id)
+    {
+        $student=Student::find($id);
+        $students=Student::all();
+        return view('student',['students'=>$students,'student'=>$student,'layout'=>'show']);
+    }
+
+// edit record
+
+    public function edit($id)
+    {
+        $student=Student::find($id);
+        $students=Student::all();
+        return view('student',['students'=>$students,'student'=>$student,'layout'=>'edit']);
+    }
+
+//    update record
+    public function update(Request $request, $id)
+    {
+        $student=Student::find($id);
+        $student->cne=$request->input('cne'); 
+        $student->firstname=$request->input('firstname'); 
+        $student->lastname=$request->input('lastname'); 
+        $student->age=$request->input('age'); 
+        $student->speciality=$request->input('speciality'); 
+        $student->update();
+        return redirect('/')->with('updtmsg','Record Updated Successfully..');
+    }
+
+//    Delete Record
+    public function destroy($id)
+    {
+        $student=Student::find($id);
+        $student->delete() ;
+        return redirect('/')->with('dltmsg','Record Deleted Successfully..');
+    }
+}
+
+====================================================================================================================================================================
+
+Routing : web.php
+
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StudentController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', function () {
+    return view('index');
+});
+
+Route::get('/about', function () {
+    return view('about');
+});
+
+// save student record
+Route::get('/',[StudentController::class,'index']);
+Route::get('/edit/{id}',[StudentController::class,'edit']);
+// Route::get('/show/{id}',[StudentController::class,'show']);
+Route::get('/create',[StudentController::class,'create']);
+Route::post('/store',[StudentController::class,'store']);
+Route::post('/update/{id}',[StudentController::class,'update']);
+Route::get('/delete/{id}',[StudentController::class,'destroy']);
+
+====================================================================================================================================================================
+
+create a table : migrations table : create_students_table :
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateStudentsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('students', function (Blueprint $table) {
+            $table->id();
+            $table->string('cne',255);
+            $table->string('firstname',255);
+            $table->string('lastname',255);
+            $table->integer('age');
+            $table->string('speciality');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('students');
+    }
+}
+
+
+====================================================================================================================================================================
+
+create view file : studentlist.blade.php
+
+@if(Session::has('addmsg'))
+<div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+  <strong> thanks !</strong> {{Session::get('addmsg')}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@elseif(Session::has('updtmsg'))
+<div class="alert alert-info alert-dismissible fade show mt-2" role="alert">
+  <strong> thanks !</strong> {{Session::get('updtmsg')}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@elseif(Session::has('dltmsg'))
+<div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+  <strong> {{Session::get('dltmsg')}} </strong> 
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+<a href="{{url('create')}}" class="btn btn-success m-2">Add New Record</a>
+<table class="table table-striped table-bordered">
+  <thead class="bg-info text-light text-uppercase">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">First Name</th>
+      <th scope="col">Last Name</th>
+      <th scope="col">Age</th>
+      <th scope="col">Speciality</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+
+  @foreach($students as $student)
+  <tbody>
+    <tr>
+        <td>{{ $student->id }}</td>
+        <td>{{ $student->firstname }}</td>
+        <td>{{ $student->lastname }}</td>
+        <td>{{ $student->age }}</td>
+        <td>{{ $student->speciality }}</td>
+        <td>
+            <a href="{{url('/edit/'.$student->id)}}" class="btn btn-info">Edit</a> &nbsp;
+            <a href="{{ url('/delete/'.$student->id) }}" class="btn btn-danger">Delete</a>
+        </td>
+    </tr>
+  </tbody>
+  @endforeach
+
+</table>
+
+====================================================================================================================================================================
+
+
+create view file : student.blade.php
+
+<html>
+    <head>
+        <title>Student Management System</title>
+        <link href="{{URL::asset('css/bootstrap.min.css')}}" rel="stylesheet">
+        <script src="{{URL::asset('js/bootstrap.min.js')}}"></script>
+    </head>
+    <body>
+        <!-- <h1 align="center">Student Management System</h1> -->
+        @if($layout=='index')
+
+<div class="container">
+    <div class="row">
+        
+        <div class="col">
+        <section>@include("studentslist")</section>
+        </div>
+    </div>
+    
+</div>
+        @elseif($layout=='create')
+        <div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3 mt-3">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <strong>Add New Record</strong>
+                </div>
+            </div>
+            <div class="card-body">
+            <form action="{{url('/store')}}" method="post">
+                @csrf
+                <label for="">CNE</label>
+                <input type="text" placeholder="Enter cne" name="cne" class="form-control"> 
+                <label for="">Fisrt Name</label>
+                <input type="text" placeholder="Enter First Name" name="firstname" class="form-control"> 
+                <label for="">Last Name</label>
+                <input type="text" placeholder="Enter last Name" name="lastname" class="form-control"> 
+                <label for="">Age</label>
+                <input type="text" placeholder="Enter age" name="age" class="form-control"> 
+                <label for="">Speciality</label>
+                <input type="text" placeholder="Enter speciality" name="speciality" class="form-control"> 
+                <button type="submit" class="btn btn-success mt-2">SUBMIT</button>
+            </form>
+            </div>
+           
+</div>
+        </div>
+    </div>
+    
+</div>
+       
+        @elseif($layout=='edit')
+        <div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3 mt-3">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <strong>Update Record</strong>
+                </div>
+            </div>
+            <div class="card-body">
+            <form action="{{url('/update/'.$student->id)}}" method="post">
+                @csrf
+                <label for="">CNE</label>
+                <input type="text" placeholder="Enter cne" value="{{$student->cne}}" name="cne" class="form-control"> 
+                <label for="">Fisrt Name</label>
+                <input type="text" placeholder="Enter First Name" value="{{$student->firstname}}" name="firstname" class="form-control"> 
+                <label for="">Last Name</label>
+                <input type="text" placeholder="Enter last Name" name="lastname" value="{{$student->lastname}}" class="form-control"> 
+                <label for="">Age</label>
+                <input type="text" placeholder="Enter age" name="age" value="{{$student->age}}" class="form-control"> 
+                <label for="">Speciality</label>
+                <input type="text" placeholder="Enter speciality" name="speciality" value="{{$student->speciality}}" class="form-control"> 
+                <button type="submit" class="btn btn-success mt-2">SUBMIT</button>
+            </form>
+            </div>
+           
+</div>
+        </div>
+    </div>
+    
+</div>
+        @endif
+
+    </body>
+</html>
+
+======================================================================================================================================================================
+
+Model : Student 
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Student extends Model
+{
+    use HasFactory;
+   protected $table='students';
+}
