@@ -28,4 +28,5 @@ then migrate table
 
 How to create controller , model and table in one command:
 -----------------------------------------------------------
-php artisan make:model Student -mc
+* php artisan make:model Student -mc
+* php artisan make:model Student --resource -mc
