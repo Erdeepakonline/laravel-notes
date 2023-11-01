@@ -25,3 +25,7 @@ public function boot()
     }
    
 then migrate table
+
+How to create controller , model and table in one command:
+-----------------------------------------------------------
+php artisan make:model Student -mc
